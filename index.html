@@ -86,10 +86,6 @@ section{padding:46px 0 8px}
 .card-top .pct{font-family:'Fraunces';font-weight:900;font-size:1.2rem;color:var(--gold-light)}
 .card-body{padding:6px 20px 14px}
 
-.stats-note{background:#fff;border:1px dashed var(--gold);border-radius:14px;padding:22px 24px;display:flex;gap:16px;align-items:flex-start}
-.stats-note .ic{font-size:1.6rem;flex-shrink:0}
-.stats-note h4{font-family:'Fraunces';font-size:1.1rem;margin-bottom:5px}
-.stats-note p{font-size:.92rem;color:#6f5f49;max-width:760px}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:18px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;box-shadow:var(--shadow)}
 .stat .val{font-family:'Fraunces';font-weight:900;font-size:2rem;color:var(--green)}
@@ -134,7 +130,6 @@ footer b{color:var(--green)}
   <div class="head-inner">
     <div class="eyebrow">Projektdashboard · Kitchen PR</div>
     <h1>Schnitzel <em>Week</em> 2026</h1>
-    <p class="sub">Gemensam översikt för projektteamet. Data hämtas från projektets Google Sheet och uppdateras när du laddar om sidan.</p>
     <div class="head-meta">
       <span class="chip">📅 Genomförande <b>7–13 sep</b></span>
       <span class="chip">📍 Stockholm <b>+</b> Göteborg</span>
@@ -154,37 +149,21 @@ footer b{color:var(--green)}
     <div class="kpis" id="kpis"></div>
   </section>
   <section>
-    <div class="sec-head"><span class="num">02</span><h2>Mål månad för månad</h2><span class="rule"></span></div>
-    <div class="months" id="months"></div>
-  </section>
-  <section>
-    <div class="sec-head"><span class="num">03</span><h2>Avbockning</h2><span class="rule"></span></div>
-    <div class="check-cols" id="checks"></div>
-  </section>
-  <section>
-    <div class="sec-head"><span class="num">04</span><h2>Tidplan</h2><span class="rule"></span></div>
-    <div class="gantt-scroll"><table class="gantt" id="gantt"></table></div>
-    <div class="legend" id="legend"></div>
-  </section>
-  <section>
-    <div class="sec-head"><span class="num">05</span><h2>Webbstatistik · schnitzelweek.se</h2><span class="rule"></span></div>
-    <div class="stats-note">
-      <div class="ic">📊</div>
-      <div><h4>Hämtas från Google Sheet</h4>
-      <p>Siffrorna nedan kommer från fliken Webbstatistik. Fyll i de senaste värdena där från ert analysverktyg, så uppdateras de här när sidan laddas om.</p></div>
-    </div>
+    <div class="sec-head"><span class="num">02</span><h2>Webbstatistik · schnitzelweek.se</h2><span class="rule"></span></div>
     <div class="stats-grid" id="stats"></div>
   </section>
   <section>
-    <div class="howto">
-      <h3>Så uppdaterar du dashboarden</h3>
-      <ol>
-        <li>Öppna projektets <b>Google Sheet</b>.</li>
-        <li>Ändra i rätt flik: KPI, Manadsmal, Gantt, Webbstatistik, Influencers, Menyer, Trycksaker eller Installningar.</li>
-        <li>Google Sheets sparar automatiskt.</li>
-        <li>Ladda om den här sidan, eller klicka <code>↻ Uppdatera nu</code>. Klart.</li>
-      </ol>
-    </div>
+    <div class="sec-head"><span class="num">03</span><h2>Mål månad för månad</h2><span class="rule"></span></div>
+    <div class="months" id="months"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">04</span><h2>Avbockning</h2><span class="rule"></span></div>
+    <div class="check-cols" id="checks"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">05</span><h2>Tidplan</h2><span class="rule"></span></div>
+    <div class="gantt-scroll"><table class="gantt" id="gantt"></table></div>
+    <div class="legend" id="legend"></div>
   </section>
   <footer>Schnitzel Week 2026 · projektdashboard för <b>Kitchen PR</b>. Data från Google Sheet · statisk sida på GitHub Pages.</footer>
 </div>
@@ -227,7 +206,7 @@ async function loadAll(){
   try{
     const keys=Object.keys(SHEET_URLS);
     const results=await Promise.all(keys.map(k=>fetchCsv(SHEET_URLS[k])));
-    const d={};keys.forEach((k,i)=>d[k]=results[i]);
+    const d={};keys.forEach((k,i)=>d[k]=cleanRows(results[i]));
     clearBanner();renderAll(d);
   }catch(e){
     banner('err','⚠️ Kunde inte hämta data. Kontrollera att alla flikar är publicerade som CSV och att länkarna stämmer. ('+(e.message||e)+')');
@@ -237,6 +216,19 @@ async function loadAll(){
 function settingsToObj(rows){const o={};rows.forEach(r=>{if(r.key)o[r.key.trim()]=(r.value||'').trim();});return o;}
 function placeholder(t){return `<div style="grid-column:1/-1;color:#8a7a64;font-style:italic;padding:8px 0">${t}</div>`;}
 function isDone(s){s=(s||'').trim().toLowerCase();return s==='done'||s==='ja';}
+/* Filtrerar bort GUIDE-rader, förklaringspunkter (•) och helt tomma rader
+   som följt med från mallen, så att de aldrig visas på dashboarden. */
+function cleanRows(rows){
+  if(!Array.isArray(rows))return [];
+  return rows.filter(r=>{
+    const vals=Object.values(r||{}).map(v=>(v==null?'':String(v)).trim());
+    if(vals.every(v=>v===''))return false;            // tom rad
+    const first=vals[0]||'';
+    if(first.startsWith('•'))return false;             // förklaringspunkt
+    if(first.toUpperCase().startsWith('GUIDE'))return false; // guide-rubrik
+    return true;
+  });
+}
 
 function renderAll(d){
   const s=settingsToObj(d.installningar||[]);
