@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schnitzel Week 2026 · Projektdashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{
+  --green:#1f5c3d;--green-deep:#143f2a;--gold:#c8962b;--gold-light:#e8c878;
+  --cream:#f4ead5;--cream-deep:#ece0c4;--ink:#231b12;--red:#a8321f;
+  --paper:#fbf6ec;--line:rgba(35,27,18,.12);
+  --shadow:0 1px 3px rgba(35,27,18,.12),0 8px 24px rgba(35,27,18,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Archivo',sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;
+  background-image:radial-gradient(circle at 12% 8%,rgba(200,150,43,.06),transparent 40%),
+                   radial-gradient(circle at 88% 92%,rgba(31,92,61,.07),transparent 45%);min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+header{background:var(--green);color:var(--cream);position:relative;overflow:hidden;border-bottom:4px solid var(--gold)}
+header::after{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,transparent 2px 12px);pointer-events:none}
+.head-inner{padding:38px 24px 30px;position:relative;z-index:1;max-width:1180px;margin:0 auto}
+.eyebrow{text-transform:uppercase;letter-spacing:.28em;font-size:.7rem;font-weight:600;color:var(--gold-light);margin-bottom:10px}
+h1{font-family:'Fraunces';font-weight:900;font-size:clamp(2.1rem,5vw,3.4rem);line-height:.98;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--gold-light)}
+.sub{margin-top:14px;font-size:1.02rem;max-width:640px;color:rgba(244,234,213,.85)}
+.head-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{background:rgba(244,234,213,.12);border:1px solid rgba(244,234,213,.25);padding:7px 14px;border-radius:100px;font-size:.82rem;font-weight:500;display:flex;align-items:center;gap:7px}
+.chip b{color:var(--gold-light);font-weight:700}
+.updated{margin-top:18px;font-size:.78rem;color:rgba(244,234,213,.6);font-style:italic}
+.countdown{background:var(--gold);color:var(--green-deep);padding:14px 24px;text-align:center;font-weight:600}
+.countdown b{font-family:'Fraunces';font-size:1.25rem;font-weight:900}
+section{padding:46px 0 8px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px}
+.sec-head h2{font-family:'Fraunces';font-weight:600;font-size:1.7rem;letter-spacing:-.01em}
+.sec-head .num{font-family:'Fraunces';font-weight:900;font-size:1rem;color:var(--gold);background:var(--cream-deep);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-head .rule{flex:1;height:1px;background:var(--line)}
+
+/* progress meters row */
+.meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:16px}
+.meter{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow);display:flex;gap:18px;align-items:center}
+.ring{--p:0;--c:var(--green);width:78px;height:78px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(var(--c) calc(var(--p)*1%),var(--cream-deep) 0);
+  display:flex;align-items:center;justify-content:center;position:relative;transition:--p 1s}
+.ring::before{content:"";position:absolute;inset:8px;background:#fff;border-radius:50%}
+.ring span{position:relative;font-family:'Fraunces';font-weight:900;font-size:1.15rem;color:var(--ink)}
+.meter .mlabel{font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;color:#8a7a64;font-weight:600}
+.meter .mval{font-family:'Fraunces';font-weight:900;font-size:1.5rem;line-height:1.1;margin-top:3px}
+.meter .mnote{font-size:.82rem;color:#8a7a64;margin-top:3px}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:100%;height:4px;background:var(--green)}
+.kpi.gold::before{background:var(--gold)}.kpi.red::before{background:var(--red)}
+.kpi .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:#8a7a64;font-weight:600}
+.kpi .val{font-family:'Fraunces';font-weight:900;font-size:2.4rem;line-height:1;margin:10px 0 4px}
+.kpi .note{font-size:.84rem;color:#8a7a64}
+.kpi .bar{height:7px;background:var(--cream-deep);border-radius:4px;margin-top:12px;overflow:hidden}
+.kpi .bar i{display:block;height:100%;border-radius:4px;background:var(--green);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.kpi.gold .bar i{background:var(--gold)}
+.months{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.month{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.month-top{padding:16px 20px;background:var(--green);color:var(--cream);display:flex;justify-content:space-between;align-items:center}
+.month-top h3{font-family:'Fraunces';font-weight:600;font-size:1.25rem}
+.month-top .pct{font-family:'Fraunces';font-weight:900;font-size:1.4rem;color:var(--gold-light)}
+.month-body{padding:8px 20px 18px}
+.goal{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.goal:last-child{border-bottom:none}
+.goal .box{width:20px;height:20px;border-radius:5px;border:2px solid var(--green);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#fff;font-weight:700}
+.goal.done .box,.goal.ja .box{background:var(--green)}
+.goal.prog .box{border-color:var(--gold);background:var(--gold);color:#fff;border-radius:50%}
+.goal .txt{font-size:.92rem}
+.goal.done .txt,.goal.ja .txt{color:#8a7a64;text-decoration:line-through}
+.tag{display:inline-block;font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 8px;border-radius:100px;margin-left:7px;vertical-align:middle}
+.tag.t-done{background:#dcebe2;color:var(--green)}.tag.t-prog{background:#f7e9cc;color:var(--gold)}.tag.t-todo{background:#ece4d6;color:#8a7a64}
+
+/* two-column checklists */
+.check-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.card-top{padding:14px 20px;background:var(--green);color:var(--cream);display:flex;justify-content:space-between;align-items:center}
+.card-top h3{font-family:'Fraunces';font-weight:600;font-size:1.15rem}
+.card-top .pct{font-family:'Fraunces';font-weight:900;font-size:1.2rem;color:var(--gold-light)}
+.card-body{padding:6px 20px 14px}
+
+.stats-note{background:#fff;border:1px dashed var(--gold);border-radius:14px;padding:22px 24px;display:flex;gap:16px;align-items:flex-start}
+.stats-note .ic{font-size:1.6rem;flex-shrink:0}
+.stats-note h4{font-family:'Fraunces';font-size:1.1rem;margin-bottom:5px}
+.stats-note p{font-size:.92rem;color:#6f5f49;max-width:760px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;box-shadow:var(--shadow)}
+.stat .val{font-family:'Fraunces';font-weight:900;font-size:2rem;color:var(--green)}
+.stat .label{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:#8a7a64;font-weight:600;margin-top:4px}
+.stat .src{font-size:.7rem;color:#b3a489;margin-top:8px;font-style:italic}
+.gantt-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
+table.gantt{border-collapse:collapse;width:100%;min-width:920px;font-size:.84rem}
+table.gantt th,table.gantt td{border-bottom:1px solid var(--line);padding:0}
+table.gantt thead th{background:var(--green);color:var(--cream);font-weight:600;padding:10px 8px;font-size:.74rem;position:sticky;top:0;text-align:center;border-right:1px solid rgba(255,255,255,.12)}
+table.gantt thead th.evt{background:var(--gold);color:var(--green-deep)}
+table.gantt thead th.t-task{text-align:left;padding-left:16px;min-width:300px}
+table.gantt thead th.t-phase{text-align:left;padding-left:14px;min-width:170px}
+td.tcell{padding:8px 16px;line-height:1.3}
+td.pcell{padding:8px 14px;font-weight:700;font-size:.8rem;vertical-align:top}
+td.pcell .city{display:block;font-weight:500;font-size:.72rem;color:#8a7a64;margin-top:2px}
+.weekcol{width:48px;text-align:center;vertical-align:middle}
+.bar-seg{height:18px;margin:0 1px;border-radius:4px}
+.ms{font-size:1rem;line-height:1;text-align:center}
+tr.alt td{background:rgba(236,224,196,.28)}
+tr.phase-first td{border-top:2px solid var(--cream-deep)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;align-items:center}
+.legend span{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:500}
+.legend i{width:16px;height:16px;border-radius:4px;display:inline-block}
+.howto{background:var(--green-deep);color:var(--cream);border-radius:16px;padding:30px 32px;margin:30px 0 0}
+.howto h3{font-family:'Fraunces';font-size:1.3rem;color:var(--gold-light);margin-bottom:12px}
+.howto ol{margin-left:20px;font-size:.92rem;line-height:1.85;color:rgba(244,234,213,.9)}
+.howto code{background:rgba(244,234,213,.14);padding:2px 7px;border-radius:5px;font-size:.85em;font-family:ui-monospace,monospace}
+footer{text-align:center;padding:40px 24px;color:#8a7a64;font-size:.82rem}
+footer b{color:var(--green)}
+.banner{padding:16px 24px;border-radius:12px;margin:0 0 8px;font-size:.92rem;display:none}
+.banner.show{display:block}
+.banner.err{background:#fbe9e6;border:1px solid var(--red);color:#7a2417}
+.banner.load{background:#fff;border:1px dashed var(--gold);color:#6f5f49}
+.banner code{background:rgba(35,27,18,.08);padding:2px 7px;border-radius:5px;font-family:ui-monospace,monospace;font-size:.85em}
+.refresh{display:inline-flex;align-items:center;gap:7px;background:rgba(244,234,213,.14);border:1px solid rgba(244,234,213,.3);color:var(--cream);padding:8px 16px;border-radius:100px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;margin-top:18px;transition:background .2s}
+.refresh:hover{background:rgba(244,234,213,.24)}
+@media(max-width:600px){.head-inner{padding:28px 20px 24px}section{padding:34px 0 6px}.kpi .val{font-size:2rem}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <div class="eyebrow">Projektdashboard · Kitchen PR</div>
+    <h1>Schnitzel <em>Week</em> 2026</h1>
+    <p class="sub">Gemensam översikt för projektteamet. Data hämtas från projektets Google Sheet och uppdateras när du laddar om sidan.</p>
+    <div class="head-meta">
+      <span class="chip">📅 Genomförande <b>7–13 sep</b></span>
+      <span class="chip">📍 Stockholm <b>+</b> Göteborg</span>
+      <span class="chip">🍺 Partner <b>Pilsner Urquell</b></span>
+      <span class="chip">🥨 <b>10</b> krogar</span>
+    </div>
+    <div class="updated" id="updated">Hämtar data…</div>
+    <div><button class="refresh" onclick="loadAll()">↻ Uppdatera nu</button></div>
+  </div>
+</header>
+<div class="countdown" id="countdown"></div>
+<div class="wrap">
+  <div id="banner" class="banner"></div>
+  <section>
+    <div class="sec-head"><span class="num">01</span><h2>Översikt</h2><span class="rule"></span></div>
+    <div class="meters" id="meters"></div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">02</span><h2>Webbstatistik · schnitzelweek.se</h2><span class="rule"></span></div>
+    <div class="stats-note">
+      <div class="ic">📊</div>
+      <div><h4>Hämtas från Google Sheet</h4>
+      <p>Siffrorna nedan kommer från fliken Webbstatistik. Fyll i de senaste värdena där från ert analysverktyg, så uppdateras de här när sidan laddas om.</p></div>
+    </div>
+    <div class="stats-grid" id="stats"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">03</span><h2>Mål månad för månad</h2><span class="rule"></span></div>
+    <div class="months" id="months"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">04</span><h2>Avbockning</h2><span class="rule"></span></div>
+    <div class="check-cols" id="checks"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">05</span><h2>Tidplan</h2><span class="rule"></span></div>
+    <div class="gantt-scroll"><table class="gantt" id="gantt"></table></div>
+    <div class="legend" id="legend"></div>
+  </section>
+  <section>
+    <div class="howto">
+      <h3>Så uppdaterar du dashboarden</h3>
+      <ol>
+        <li>Öppna projektets <b>Google Sheet</b>.</li>
+        <li>Ändra i rätt flik: KPI, Manadsmal, Gantt, Webbstatistik, Influencers, Menyer, Trycksaker eller Installningar.</li>
+        <li>Google Sheets sparar automatiskt.</li>
+        <li>Ladda om den här sidan, eller klicka <code>↻ Uppdatera nu</code>. Klart.</li>
+      </ol>
+    </div>
+  </section>
+  <footer>Schnitzel Week 2026 · projektdashboard för <b>Kitchen PR</b>. Data från Google Sheet · statisk sida på GitHub Pages.</footer>
+</div>
+
+<script>
+/* =================================================================
+   FYLL I DINA ÅTTA CSV-LÄNKAR HÄR.
+   Google Sheets: Arkiv → Dela → Publicera på webben →
+   välj fliken → format CSV → Publicera. Klistra in länken (output=csv).
+   ================================================================= */
+const SHEET_URLS = {
+  kpi:           "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=241672014&single=true&output=csv",
+  manadsmal:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=1454589981&single=true&output=csv",
+  gantt:         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=1617648249&single=true&output=csv",
+  webbstatistik: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=1399561308&single=true&output=csv",
+  influencers:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=871439669&single=true&output=csv",
+  menyer:        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=785124795&single=true&output=csv",
+  trycksaker:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=1121713996&single=true&output=csv",
+  installningar: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRaDrdEUhFdUHfUy064P8vK5hU6fCJDeCWbEwx71PsASq5UgKl7ptR8-oyFnnRhHuxTLFS3C4O9c_iH/pub?gid=1168009038&single=true&output=csv"
+};
+
+const WEEKS=["v29","v30","v31","v32","v33","v34","v35","v36","v37","v38","v39","v40"];
+const WEEK_DATES=["13/7","20/7","27/7","3/8","10/8","17/8","24/8","31/8","7/9","14/9","21/9","28/9"];
+const EVENT_WEEK_INDEX=8;
+const CITY_ORDER=["Gemensam","Stockholm","Göteborg"];
+
+const fmt=new Intl.DateTimeFormat('sv-SE',{day:'numeric',month:'long',year:'numeric'});
+const $=id=>document.getElementById(id);
+function banner(t,m){const b=$('banner');b.className='banner show '+t;b.innerHTML=m;}
+function clearBanner(){$('banner').className='banner';}
+function fetchCsv(url){return new Promise((res,rej)=>{Papa.parse(url,{download:true,header:true,skipEmptyLines:true,complete:r=>res(r.data),error:e=>rej(e)});});}
+
+async function loadAll(){
+  const notSet=Object.values(SHEET_URLS).some(u=>u.startsWith("KLISTRA_IN"));
+  if(notSet){
+    banner('load','⚙️ <b>Inte kopplad än.</b> Klistra in dina åtta CSV-länkar i <code>SHEET_URLS</code> högst upp i index.html. Tills dess visas tom struktur.');
+    renderAll({kpi:[],manadsmal:[],gantt:[],webbstatistik:[],influencers:[],menyer:[],trycksaker:[],installningar:[]});return;
+  }
+  banner('load','⏳ Hämtar senaste data från Google Sheet…');
+  try{
+    const keys=Object.keys(SHEET_URLS);
+    const results=await Promise.all(keys.map(k=>fetchCsv(SHEET_URLS[k])));
+    const d={};keys.forEach((k,i)=>d[k]=cleanRows(results[i]));
+    clearBanner();renderAll(d);
+  }catch(e){
+    banner('err','⚠️ Kunde inte hämta data. Kontrollera att alla flikar är publicerade som CSV och att länkarna stämmer. ('+(e.message||e)+')');
+  }
+}
+
+function settingsToObj(rows){const o={};rows.forEach(r=>{if(r.key)o[r.key.trim()]=(r.value||'').trim();});return o;}
+function placeholder(t){return `<div style="grid-column:1/-1;color:#8a7a64;font-style:italic;padding:8px 0">${t}</div>`;}
+function isDone(s){s=(s||'').trim().toLowerCase();return s==='done'||s==='ja';}
+/* Filtrerar bort GUIDE-rader, förklaringspunkter (•) och helt tomma rader
+   som följt med från mallen, så att de aldrig visas på dashboarden. */
+function cleanRows(rows){
+  if(!Array.isArray(rows))return [];
+  return rows.filter(r=>{
+    const vals=Object.values(r||{}).map(v=>(v==null?'':String(v)).trim());
+    if(vals.every(v=>v===''))return false;            // tom rad
+    const first=vals[0]||'';
+    if(first.startsWith('•'))return false;             // förklaringspunkt
+    if(first.toUpperCase().startsWith('GUIDE'))return false; // guide-rubrik
+    return true;
+  });
+}
+
+function renderAll(d){
+  const s=settingsToObj(d.installningar||[]);
+  const eventStart=s.eventStart||"2026-09-07";const lastUpdated=s.lastUpdated||"";
+  const malPerStad=parseInt(s.influencerMalPerStad)||10;
+  $('updated').textContent=lastUpdated?'Senast uppdaterad i arket: '+fmt.format(new Date(lastUpdated)):'';
+  const today=new Date(),ev=new Date(eventStart);
+  const days=Math.ceil((ev-today)/(1000*60*60*24));const weeks=Math.max(0,Math.ceil(days/7));
+  $('countdown').innerHTML=days>0?`🥨 <b>${days}</b> dagar kvar till Schnitzel Week · start ${fmt.format(ev)}`
+    :(days>=-6?`🍺 Schnitzel Week pågår nu!`:`✓ Schnitzel Week 2026 är genomförd`);
+
+  renderMeters(d,malPerStad);
+  renderKpis(d.kpi||[],weeks);
+  renderMonths(d.manadsmal||[]);
+  renderChecks(d.menyer||[],d.trycksaker||[]);
+  renderStats(d.webbstatistik||[]);
+  renderGantt(d.gantt||[]);
+}
+
+function ring(pct,color,label,valText,note){
+  return `<div class="meter">
+    <div class="ring" style="--p:${pct};--c:${color}"><span>${pct}%</span></div>
+    <div><div class="mlabel">${label}</div><div class="mval">${valText}</div>
+    <div class="mnote">${note}</div></div></div>`;
+}
+function renderMeters(d,malPerStad){
+  const inf=d.influencers||[];
+  const byCity=c=>inf.filter(r=>(r.city||'').trim()===c);
+  const sthlmDone=byCity('Stockholm').filter(r=>isDone(r.status)).length;
+  const gbgDone=byCity('Göteborg').filter(r=>isDone(r.status)).length;
+  const sthlmPct=Math.round(sthlmDone/malPerStad*100);
+  const gbgPct=Math.round(gbgDone/malPerStad*100);
+  const tryck=d.trycksaker||[];
+  const tDone=tryck.filter(r=>isDone(r.status)).length;
+  const tPct=tryck.length?Math.round(tDone/tryck.length*100):0;
+  $('meters').innerHTML=
+    ring(sthlmPct,'#C0392B','Influencers Stockholm',`${sthlmDone} / ${malPerStad}`,'bekräftade')+
+    ring(gbgPct,'#C0392B','Influencers Göteborg',`${gbgDone} / ${malPerStad}`,'bekräftade')+
+    ring(tPct,'#B8860B','Trycksaker',`${tDone} / ${tryck.length||5}`,'delar klara');
+}
+
+function renderKpis(rows,weeks){
+  $('kpis').innerHTML=rows.map(k=>{
+    const val=(k.value||'').trim()==='AUTO'?weeks:(k.value||'');
+    const pct=(k.pct||'').toString().trim();
+    const bar=pct!==''?`<div class="bar"><i style="width:${pct}%"></i></div>`:'';
+    return `<div class="kpi ${(k.style||'').trim()}"><div class="label">${k.label||''}</div>
+      <div class="val">${val}</div><div class="note">${k.note||''}</div>${bar}</div>`;
+  }).join('')||placeholder('Inga KPI:er ännu');
+}
+
+const TAGMAP={done:'<span class="tag t-done">Klar</span>',prog:'<span class="tag t-prog">Pågår</span>',todo:'<span class="tag t-todo">Att göra</span>'};
+const MARKMAP={done:'✓',prog:'·',todo:''};
+
+function renderMonths(rows){
+  const order=['Juli','Augusti','September'];const byMonth={};
+  rows.forEach(g=>{const m=(g.month||'').trim();if(!m)return;(byMonth[m]=byMonth[m]||[]).push(g);});
+  const names=Object.keys(byMonth).sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+  $('months').innerHTML=names.map(m=>{
+    const goals=byMonth[m];const total=goals.length;
+    const done=goals.filter(g=>(g.status||'').trim()==='done').length;
+    const prog=goals.filter(g=>(g.status||'').trim()==='prog').length;
+    const pct=total?Math.round(((done+prog*0.5)/total)*100):0;
+    const items=goals.map(g=>{const st=(g.status||'todo').trim();
+      return `<div class="goal ${st}"><div class="box">${MARKMAP[st]||''}</div>
+        <div class="txt">${g.goal||''}${TAGMAP[st]||''}</div></div>`;}).join('');
+    return `<div class="month"><div class="month-top"><h3>${m}</h3><span class="pct">${pct}%</span></div>
+      <div class="month-body">${items}</div></div>`;}).join('')||placeholder('Inga månadsmål ännu');
+}
+
+function renderChecks(menyer,trycksaker){
+  let html='';
+  // Menus grouped by city
+  const cities=['Stockholm','Göteborg'];
+  cities.forEach(city=>{
+    const rows=menyer.filter(r=>(r.city||'').trim()===city);
+    if(!rows.length)return;
+    const done=rows.filter(r=>isDone(r.submitted)).length;
+    const pct=Math.round(done/rows.length*100);
+    const items=rows.map(r=>{const ok=isDone(r.submitted);
+      return `<div class="goal ${ok?'ja':'todo'}"><div class="box">${ok?'✓':''}</div>
+        <div class="txt">${r.restaurant||''}${ok?'<span class="tag t-done">Inlämnad</span>':'<span class="tag t-todo">Väntar</span>'}</div></div>`;}).join('');
+    html+=`<div class="card"><div class="card-top"><h3>Menyer · ${city}</h3><span class="pct">${done}/${rows.length}</span></div>
+      <div class="card-body">${items}</div></div>`;
+  });
+  // Trycksaker single list
+  if(trycksaker.length){
+    const items=trycksaker.map(r=>{const st=(r.status||'todo').trim();
+      return `<div class="goal ${st}"><div class="box">${MARKMAP[st]||''}</div>
+        <div class="txt">${r.item||''}${TAGMAP[st]||''}</div></div>`;}).join('');
+    const done=trycksaker.filter(r=>isDone(r.status)).length;
+    html+=`<div class="card"><div class="card-top"><h3>Trycksaker</h3><span class="pct">${done}/${trycksaker.length}</span></div>
+      <div class="card-body">${items}</div></div>`;
+  }
+  $('checks').innerHTML=html||placeholder('Ingen avbockningsdata ännu');
+}
+
+function renderStats(rows){
+  $('stats').innerHTML=rows.map(x=>`
+    <div class="stat"><div class="val">${x.value||'—'}</div>
+    <div class="label">${x.label||''}</div><div class="src">${x.source||''}</div></div>`).join('')||placeholder('Ingen webbstatistik ännu');
+}
+
+function renderGantt(rows){
+  const W=WEEKS.length;
+  // group by phase then city; preserve phase order of first appearance
+  const phases=[];const pmap={};
+  rows.forEach(r=>{
+    const name=(r.phase||'').trim();if(!name)return;
+    const city=(r.city||'Gemensam').trim();
+    if(!pmap[name]){pmap[name]={name,color:(r.color||'#1f5c3d').trim(),cityGroups:{},cityOrder:[]};phases.push(pmap[name]);}
+    const ph=pmap[name];
+    if(!ph.cityGroups[city]){ph.cityGroups[city]=[];ph.cityOrder.push(city);}
+    ph.cityGroups[city].push({t:r.task||'',s:parseInt(r.start_week)||0,e:parseInt(r.end_week)||0,
+      ms:(r.milestone||'').trim().toLowerCase()==='ja'});
+  });
+  let head=`<thead><tr><th class="t-phase">Fas</th><th class="t-task">Aktivitet</th>`;
+  WEEKS.forEach((w,i)=>{head+=`<th class="${i===EVENT_WEEK_INDEX?'evt':''}">${w}<br><span style="font-weight:400;opacity:.8">${WEEK_DATES[i]}</span></th>`;});
+  head+=`</tr></thead>`;
+  let bodyHtml='<tbody>',rowi=0;
+  phases.forEach(ph=>{
+    const cities=ph.cityOrder.slice().sort((a,b)=>{const ia=CITY_ORDER.indexOf(a),ib=CITY_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+    let firstInPhase=true;
+    cities.forEach(city=>{
+      ph.cityGroups[city].forEach((tk,ti)=>{
+        const alt=rowi%2?'alt':'';
+        const phaseFirst=firstInPhase?'phase-first':'';
+        let cells='';
+        for(let j=0;j<W;j++){let inner='';
+          if(j>=tk.s&&j<=tk.e){inner=tk.ms?`<div class="ms" style="color:${ph.color}">◆</div>`:`<div class="bar-seg" style="background:${ph.color}"></div>`;}
+          cells+=`<td class="weekcol">${inner}</td>`;}
+        const showLabel=(ti===0);
+        const cityTag=(city!=='Gemensam')?`<span class="city">${city}</span>`:'';
+        bodyHtml+=`<tr class="${alt} ${phaseFirst}">
+          <td class="pcell" style="color:${ph.color}">${showLabel?ph.name+cityTag:(ti===0?'':'')}</td>
+          <td class="tcell">${tk.t}</td>${cells}</tr>`;
+        rowi++;firstInPhase=false;
+      });
+    });
+  });
+  bodyHtml+='</tbody>';
+  $('gantt').innerHTML=head+bodyHtml;
+  $('legend').innerHTML=phases.map(p=>`<span><i style="background:${p.color}"></i>${p.name}</span>`).join('')
+    +`<span style="margin-left:auto;color:#8a7a64">◆ = milstolpe / deadline</span>`;
+}
+
+loadAll();
+</script>
+</body>
+</html>
