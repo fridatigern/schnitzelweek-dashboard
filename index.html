@@ -85,6 +85,14 @@ section{padding:46px 0 8px}
 .card-top h3{font-family:'Fraunces';font-weight:600;font-size:1.15rem}
 .card-top .pct{font-family:'Fraunces';font-weight:900;font-size:1.2rem;color:var(--gold-light)}
 .card-body{padding:6px 20px 14px}
+.sales-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.sales-table th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#8a7a64;font-weight:700;padding:6px 4px;border-bottom:2px solid var(--line)}
+.sales-table td{padding:9px 4px;border-bottom:1px solid var(--line)}
+.sales-table .s-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sales-table .s-diff{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.sales-table .s-name{font-weight:500}
+.sales-table tfoot td{border-top:2px solid var(--line);border-bottom:none;font-weight:700;padding-top:11px}
+.sales-table tfoot .s-name{font-family:'Fraunces';font-size:1rem}
 
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:18px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;box-shadow:var(--shadow)}
@@ -158,7 +166,11 @@ footer b{color:var(--green)}
     <div class="check-cols" id="checks"></div>
   </section>
   <section>
-    <div class="sec-head"><span class="num">04</span><h2>Tidplan</h2><span class="rule"></span></div>
+    <div class="sec-head"><span class="num">04</span><h2>Försäljning Pilsner Urquell · v37</h2><span class="rule"></span></div>
+    <div class="check-cols" id="sales"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="num">05</span><h2>Tidplan</h2><span class="rule"></span></div>
     <div class="gantt-scroll"><table class="gantt" id="gantt"></table></div>
     <div class="legend" id="legend"></div>
   </section>
@@ -179,7 +191,8 @@ const SHEET_URLS = {
   influencers:   "https://docs.google.com/spreadsheets/d/1VFlU8S2Rtlh1CzcBwm4tRF9NwBXobRUx3Y3_0aazojs/gviz/tq?tqx=out:csv&gid=871439669",
   menyer:        "https://docs.google.com/spreadsheets/d/1VFlU8S2Rtlh1CzcBwm4tRF9NwBXobRUx3Y3_0aazojs/gviz/tq?tqx=out:csv&gid=785124795",
   trycksaker:    "https://docs.google.com/spreadsheets/d/1VFlU8S2Rtlh1CzcBwm4tRF9NwBXobRUx3Y3_0aazojs/gviz/tq?tqx=out:csv&gid=1121713996",
-  installningar: "https://docs.google.com/spreadsheets/d/1VFlU8S2Rtlh1CzcBwm4tRF9NwBXobRUx3Y3_0aazojs/gviz/tq?tqx=out:csv&gid=1168009038"
+  installningar: "https://docs.google.com/spreadsheets/d/1VFlU8S2Rtlh1CzcBwm4tRF9NwBXobRUx3Y3_0aazojs/gviz/tq?tqx=out:csv&gid=1168009038",
+  forsaljning:   "https://docs.google.com/spreadsheets/d/1VFlU8S2Rtlh1CzcBwm4tRF9NwBXobRUx3Y3_0aazojs/gviz/tq?tqx=out:csv&gid=1008087875"
 };
 
 const WEEKS=["v29","v30","v31","v32","v33","v34","v35","v36","v37","v38","v39","v40"];
@@ -197,7 +210,7 @@ async function loadAll(){
   const notSet=Object.values(SHEET_URLS).some(u=>u.startsWith("KLISTRA_IN"));
   if(notSet){
     banner('load','⚙️ <b>Inte kopplad än.</b> Klistra in dina åtta CSV-länkar i <code>SHEET_URLS</code> högst upp i index.html. Tills dess visas tom struktur.');
-    renderAll({kpi:[],manadsmal:[],gantt:[],webbstatistik:[],influencers:[],menyer:[],trycksaker:[],installningar:[]});return;
+    renderAll({kpi:[],manadsmal:[],gantt:[],webbstatistik:[],influencers:[],menyer:[],trycksaker:[],installningar:[],forsaljning:[]});return;
   }
   banner('load','⏳ Hämtar senaste data från Google Sheet…');
   try{
@@ -241,6 +254,7 @@ function renderAll(d){
   renderKpis(d.kpi||[],weeks);
   renderMonths(d.manadsmal||[]);
   renderChecks(d.menyer||[],d.trycksaker||[]);
+  renderSales(d.forsaljning||[]);
   renderStats(d.webbstatistik||[]);
   renderGantt(d.gantt||[]);
 }
@@ -252,18 +266,10 @@ function ring(pct,color,label,valText,note){
     <div class="mnote">${note}</div></div></div>`;
 }
 function renderMeters(d,malPerStad){
-  const inf=d.influencers||[];
-  const byCity=c=>inf.filter(r=>(r.city||'').trim()===c);
-  const sthlmDone=byCity('Stockholm').filter(r=>isDone(r.status)).length;
-  const gbgDone=byCity('Göteborg').filter(r=>isDone(r.status)).length;
-  const sthlmPct=Math.round(sthlmDone/malPerStad*100);
-  const gbgPct=Math.round(gbgDone/malPerStad*100);
   const tryck=d.trycksaker||[];
   const tDone=tryck.filter(r=>isDone(r.status)).length;
   const tPct=tryck.length?Math.round(tDone/tryck.length*100):0;
   $('meters').innerHTML=
-    ring(sthlmPct,'#C0392B','Influencers Stockholm',`${sthlmDone} / ${malPerStad}`,'bekräftade')+
-    ring(gbgPct,'#C0392B','Influencers Göteborg',`${gbgDone} / ${malPerStad}`,'bekräftade')+
     ring(tPct,'#B8860B','Trycksaker',`${tDone} / ${tryck.length||5}`,'delar klara');
 }
 
@@ -321,6 +327,48 @@ function renderChecks(menyer,trycksaker){
       <div class="card-body">${items}</div></div>`;
   }
   $('checks').innerHTML=html||placeholder('Ingen avbockningsdata ännu');
+}
+
+function renderSales(rows){
+  const cities=['Stockholm','Göteborg'];
+  const parseNum=v=>{const n=parseInt((v||'').toString().replace(/\s/g,''),10);return isNaN(n)?0:n;};
+  let html='';
+  cities.forEach(city=>{
+    const list=rows.filter(r=>(r.city||'').trim()===city);
+    if(!list.length)return;
+    let sumNow=0,sumPrev=0;
+    const body=list.map(r=>{
+      const now=parseNum(r.i_ar), prev=parseNum(r.forra_aret);
+      sumNow+=now; sumPrev+=prev;
+      const diff=now-prev;
+      const arrow=diff>0?'▲':(diff<0?'▼':'–');
+      const col=diff>0?'#2E7D32':(diff<0?'#C0392B':'#8a7a64');
+      return `<tr>
+        <td class="s-name">${r.restaurant||''}</td>
+        <td class="s-num">${now.toLocaleString('sv-SE')}</td>
+        <td class="s-num">${prev.toLocaleString('sv-SE')}</td>
+        <td class="s-diff" style="color:${col}">${arrow} ${Math.abs(diff).toLocaleString('sv-SE')}</td>
+      </tr>`;
+    }).join('');
+    const tDiff=sumNow-sumPrev;
+    const tArrow=tDiff>0?'▲':(tDiff<0?'▼':'–');
+    const tCol=tDiff>0?'#2E7D32':(tDiff<0?'#C0392B':'#8a7a64');
+    html+=`<div class="card">
+      <div class="card-top"><h3>Försäljning · ${city}</h3><span class="pct">${sumNow.toLocaleString('sv-SE')} st</span></div>
+      <div class="card-body">
+        <table class="sales-table">
+          <thead><tr><th>Restaurang</th><th class="s-num">I år</th><th class="s-num">Förra året</th><th class="s-num">Diff</th></tr></thead>
+          <tbody>${body}</tbody>
+          <tfoot><tr>
+            <td class="s-name">Totalt</td>
+            <td class="s-num">${sumNow.toLocaleString('sv-SE')}</td>
+            <td class="s-num">${sumPrev.toLocaleString('sv-SE')}</td>
+            <td class="s-diff" style="color:${tCol}">${tArrow} ${Math.abs(tDiff).toLocaleString('sv-SE')}</td>
+          </tr></tfoot>
+        </table>
+      </div></div>`;
+  });
+  $('sales').innerHTML=html||placeholder('Ingen försäljningsdata ännu');
 }
 
 function renderStats(rows){
