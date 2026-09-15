@@ -347,13 +347,13 @@ function renderSales(rows){
     const tArrow=tDiff>0?'▲':(tDiff<0?'▼':'–');
     const tCol=tDiff>0?'#2E7D32':(tDiff<0?'#C0392B':'#8a7a64');
     html+=`<div class="card">
-      <div class="card-top"><h3>Försäljning · ${city}</h3><span class="pct">${sumNow.toLocaleString('sv-SE')} st</span></div>
+      <div class="card-top"><h3>Försäljning · ${city}</h3><span class="pct">${sumNow.toLocaleString('sv-SE')} × 50 cl</span></div>
       <div class="card-body">
         <table class="sales-table">
           <thead><tr><th>Restaurang</th><th class="s-num">I år</th><th class="s-num">Förra året</th><th class="s-num">Diff</th></tr></thead>
           <tbody>${body}</tbody>
           <tfoot><tr>
-            <td class="s-name">Totalt</td>
+            <td class="s-name">Totalt (50 cl)</td>
             <td class="s-num">${sumNow.toLocaleString('sv-SE')}</td>
             <td class="s-num">${sumPrev.toLocaleString('sv-SE')}</td>
             <td class="s-diff" style="color:${tCol}">${tArrow} ${Math.abs(tDiff).toLocaleString('sv-SE')}</td>
