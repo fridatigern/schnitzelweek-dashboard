@@ -90,6 +90,7 @@ section{padding:46px 0 8px}
 .sales-table td{padding:9px 4px;border-bottom:1px solid var(--line)}
 .sales-table .s-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sales-table .s-diff{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.sales-table .s-pct{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700;padding-left:10px}
 .sales-table .s-name{font-weight:500}
 .sales-table tfoot td{border-top:2px solid var(--line);border-bottom:none;font-weight:700;padding-top:11px}
 .sales-table tfoot .s-name{font-family:'Fraunces';font-size:1rem}
@@ -325,6 +326,16 @@ function renderChecks(menyer,trycksaker){
 function renderSales(rows){
   const cities=['Stockholm','Göteborg'];
   const parseNum=v=>{const n=parseInt((v||'').toString().replace(/\s/g,''),10);return isNaN(n)?0:n;};
+  const pctCell=(now,prev)=>{
+    if(prev===0){
+      const txt = now>0 ? 'ny' : '–';
+      return `<td class="s-pct" style="color:#8a7a64">${txt}</td>`;
+    }
+    const p=Math.round((now-prev)/prev*100);
+    const col=p>0?'#2E7D32':(p<0?'#C0392B':'#8a7a64');
+    const sign=p>0?'+':'';
+    return `<td class="s-pct" style="color:${col}">${sign}${p} %</td>`;
+  };
   let html='';
   cities.forEach(city=>{
     const list=rows.filter(r=>(r.city||'').trim()===city);
@@ -341,6 +352,7 @@ function renderSales(rows){
         <td class="s-num">${now.toLocaleString('sv-SE')}</td>
         <td class="s-num">${prev.toLocaleString('sv-SE')}</td>
         <td class="s-diff" style="color:${col}">${arrow} ${Math.abs(diff).toLocaleString('sv-SE')}</td>
+        ${pctCell(now,prev)}
       </tr>`;
     }).join('');
     const tDiff=sumNow-sumPrev;
@@ -350,13 +362,14 @@ function renderSales(rows){
       <div class="card-top"><h3>Försäljning · ${city}</h3><span class="pct">${sumNow.toLocaleString('sv-SE')} × 50 cl</span></div>
       <div class="card-body">
         <table class="sales-table">
-          <thead><tr><th>Restaurang</th><th class="s-num">I år</th><th class="s-num">Förra året</th><th class="s-num">Diff</th></tr></thead>
+          <thead><tr><th>Restaurang</th><th class="s-num">I år</th><th class="s-num">Förra året</th><th class="s-num">Diff</th><th class="s-pct">%</th></tr></thead>
           <tbody>${body}</tbody>
           <tfoot><tr>
             <td class="s-name">Totalt (50 cl)</td>
             <td class="s-num">${sumNow.toLocaleString('sv-SE')}</td>
             <td class="s-num">${sumPrev.toLocaleString('sv-SE')}</td>
             <td class="s-diff" style="color:${tCol}">${tArrow} ${Math.abs(tDiff).toLocaleString('sv-SE')}</td>
+            ${pctCell(sumNow,sumPrev)}
           </tr></tfoot>
         </table>
       </div></div>`;
