@@ -341,9 +341,11 @@ function renderSales(rows){
     const list=rows.filter(r=>(r.city||'').trim()===city);
     if(!list.length)return;
     let sumNow=0,sumPrev=0;
+    let pctNow=0,pctPrev=0; // bara restauranger som hade försäljning förra året
     const body=list.map(r=>{
       const now=parseNum(r.i_ar), prev=parseNum(r.forra_aret);
       sumNow+=now; sumPrev+=prev;
+      if(prev>0){ pctNow+=now; pctPrev+=prev; }
       const diff=now-prev;
       const arrow=diff>0?'▲':(diff<0?'▼':'–');
       const col=diff>0?'#2E7D32':(diff<0?'#C0392B':'#8a7a64');
@@ -369,7 +371,7 @@ function renderSales(rows){
             <td class="s-num">${sumNow.toLocaleString('sv-SE')}</td>
             <td class="s-num">${sumPrev.toLocaleString('sv-SE')}</td>
             <td class="s-diff" style="color:${tCol}">${tArrow} ${Math.abs(tDiff).toLocaleString('sv-SE')}</td>
-            ${pctCell(sumNow,sumPrev)}
+            ${pctCell(pctNow,pctPrev)}
           </tr></tfoot>
         </table>
       </div></div>`;
